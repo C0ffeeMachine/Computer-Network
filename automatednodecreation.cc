@@ -313,34 +313,42 @@ int main (int argc, char *argv[])
 //
 // TCP connections.
 //
-  int activeCon = nTN+nLN-2;
+  int activeCon = nLN + nTN - 2 ;
 
   uint16_t sinkPortRight[activeCon];
   std::vector<Address> sinkAddRight;
   std::vector<PacketSinkHelper> packetSinkHelperRight;
   ApplicationContainer sinkRight[activeCon];
-  Ptr<Socket> socketLeft[activeCon];
+  Ptr<Socket> socketLeft[activeCon-nTN +1],socketTop[nTN-1];
   Ptr<MyApp> app[activeCon];
-  oss.str("");
-  oss.clear();
 
   for(int i=0; i < activeCon; i++)
   {
     oss<<i<<"-r"<<nR-1;
     sinkPortRight[i]= 8080+i;
-    sinkAddRight.push_back(Address (InetSocketAddress (IC[oss.str()].GetAddress, sinkPortRight[i])));
+    sinkAddRight.push_back(Address (InetSocketAddress (IC[oss.str()].GetAddress(0), sinkPortRight[i])));
     packetSinkHelperRight.push_back(PacketSinkHelper ("ns3::TcpSocketFactory", InetSocketAddress (Ipv4Address::GetAny (), sinkPortRight[i])));
     sinkRight[i] = packetSinkHelperRight[i].Install (rightnodes.Get (i));
     sinkRight[i].Start (Seconds (0));
     sinkRight[i].Stop (Seconds (200.));
+	if(i<nLN-1){
+		socketLeft[i] = Socket::CreateSocket (leftnodes.Get (i), TcpSocketFactory::GetTypeId ());
 
-    socketLeft[i] = Socket::CreateSocket (leftnodes.Get (i), TcpSocketFactory::GetTypeId ());
+		app[i]= CreateObject<MyApp> ();
+		app[i]->Setup (socketLeft[i], sinkAddRight[i], 1040, 100000, DataRate ("100Mbps"));
+		leftnodes.Get (i)->AddApplication (app[i]);
+		app[i]->SetStartTime (Seconds (1));
+		app[i]->SetStopTime (Seconds (200.));
+	}else{
+		socketTop[i-(nLN-1)] = Socket::CreateSocket (topnodes.Get (i-(nLN-1)), TcpSocketFactory::GetTypeId ());
 
-    app[i]= CreateObject<MyApp> ();
-    app[i]->Setup (socketLeft[i], sinkAddRight[i], 1040, 100000, DataRate ("100Mbps"));
-    leftnodes.Get (i)->AddApplication (app[i]);
-    app[i]->SetStartTime (Seconds (1));
-    app[i]->SetStopTime (Seconds (200.));
+		app[i-(nLN-1)]= CreateObject<MyApp> ();
+		app[i-(nLN-1)]->Setup (socketTop[i-(nLN-1)], sinkAddRight[i-(nLN-1)], 1040, 100000, DataRate ("100Mbps"));
+		topnodes.Get (i-(nLN-1))->AddApplication (app[i-(nLN-1)]);
+		app[i-(nLN-1)]->SetStartTime (Seconds (1));
+		app[i-(nLN-1)]->SetStopTime (Seconds (200.));
+	}
+
     oss.str("");
     oss.clear();
   }
