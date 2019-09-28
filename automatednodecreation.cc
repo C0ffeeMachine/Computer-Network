@@ -321,6 +321,8 @@ int main (int argc, char *argv[])
   ApplicationContainer sinkRight[activeCon];
   Ptr<Socket> socketLeft[activeCon];
   Ptr<MyApp> app[activeCon];
+  oss.str("");
+  oss.clear();
 
   for(int i=0; i < activeCon; i++)
   {
@@ -339,6 +341,8 @@ int main (int argc, char *argv[])
     leftnodes.Get (i)->AddApplication (app[i]);
     app[i]->SetStartTime (Seconds (1));
     app[i]->SetStopTime (Seconds (200.));
+    oss.str("");
+    oss.clear();
   }
 
   AsciiTraceHelper asciiTraceHelper;
