@@ -1,7 +1,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include<vector>
+#include <vector>
 #include <map>
 #include "ns3/constant-position-mobility-model.h"
 #include "ns3/core-module.h"
@@ -111,7 +111,7 @@ MyApp::ScheduleTx(void) {
 	}
 }
 
-static void
+/*static void
 CwndChange(Ptr<OutputStreamWrapper> stream, uint32_t oldCwnd, uint32_t newCwnd) {
  // NS_LOG_UNCOND (Simulator::Now ().GetSeconds () << "\t" << newCwnd);
 	*stream->GetStream() << Simulator::Now().GetSeconds() << "\t" << oldCwnd << "\t" << newCwnd << std::endl;
@@ -121,7 +121,7 @@ static void
 RxDrop(Ptr<PcapFileWrapper> file, Ptr<const Packet> p) {
 	NS_LOG_UNCOND("RxDrop at " << Simulator::Now().GetSeconds());
 	file->Write(Simulator::Now(), p);
-}
+}*/
 int main(int argc, char *argv[]) {
 	std::string probeType = "ns3::Ipv4PacketProbe";
 	std::string tracePath = "/NodeList/*/$ns3::Ipv4L3Protocol/Tx";
@@ -235,7 +235,8 @@ int main(int argc, char *argv[]) {
 
 	Ipv4AddressHelper ipv4;
 
-	for (int i = 0; i < nLN - 1; i++) {
+	for (int i = 0; i < nLN - 1; i++) 
+  {
 		ip << "10.1." << i + 1 << ".0";
 		oss << i << "-r0";
 		ipv4.SetBase(ip.str().c_str(), "255.255.255.0");
@@ -246,7 +247,8 @@ int main(int argc, char *argv[]) {
 		ip.clear();
 	}
 
-	for (int i = 0; i < nTN - 1; i++) {
+	for (int i = 0; i < nTN - 1; i++) 
+  {
 		ip << "10.3." << i + 1 << ".0";
 		oss << i << "-r1";
 		ipv4.SetBase(ip.str().c_str(), "255.255.255.0");
@@ -257,7 +259,8 @@ int main(int argc, char *argv[]) {
 		ip.clear();
 	}
 
-	for (int i = 0; i < nRN - 2; i++) {
+	for (int i = 0; i < nRN - 2; i++) 
+  {
 		ip << "10.2." << i + 1 << ".0";
 		oss << i << "-r" << nR - 1;
 		ipv4.SetBase(ip.str().c_str(), "255.255.255.0");
@@ -268,7 +271,8 @@ int main(int argc, char *argv[]) {
 		ip.clear();
 	}
 
-	for (int i = 0; i < nR - 1; i++) {
+	for (int i = 0; i < nR - 1; i++)
+  {
 		ip << "10.4." << i + 1 << ".0";
 		oss << 'r' << i << "-r" << i + 1;
 		ipv4.SetBase(ip.str().c_str(), "255.255.255.0");
@@ -304,7 +308,8 @@ int main(int argc, char *argv[]) {
 	Ptr<Socket> socketLeft[activeCon - nTN + 1], socketTop[nTN - 1];
 	Ptr<MyApp> app[activeCon];
 
-	for (int i = 0; i < activeCon; i++) {
+	for (int i = 0; i < activeCon; i++) 
+  {
 		oss << i << "-r" << nR - 1;
 		sinkPortRight[i] = 8080 + i;
 		sinkAddRight.push_back(Address(InetSocketAddress(IC[oss.str()].GetAddress(0), sinkPortRight[i])));
@@ -312,7 +317,9 @@ int main(int argc, char *argv[]) {
 		sinkRight[i] = packetSinkHelperRight[i].Install(rightnodes.Get(i));
 		sinkRight[i].Start(Seconds(0));
 		sinkRight[i].Stop(Seconds(200.));
-		if (i < nLN - 1) {
+
+		if (i < nLN - 1)
+     {
 			socketLeft[i] = Socket::CreateSocket(leftnodes.Get(i), TcpSocketFactory::GetTypeId());
 
 			app[i] = CreateObject<MyApp>();
@@ -320,7 +327,10 @@ int main(int argc, char *argv[]) {
 			leftnodes.Get(i)->AddApplication(app[i]);
 			app[i]->SetStartTime(Seconds(1));
 			app[i]->SetStopTime(Seconds(200.));
-		} else {
+		}
+
+    else 
+    {
 			socketTop[i - ( nLN - 1 )] = Socket::CreateSocket(topnodes.Get(i - ( nLN - 1 )), TcpSocketFactory::GetTypeId());
 
 			app[i - ( nLN - 1 )] = CreateObject<MyApp>();
@@ -333,23 +343,36 @@ int main(int argc, char *argv[]) {
 		oss.str("");
 		oss.clear();
 	}
+
   //---------------------------------------------NetAnim---------------------------------------------------------------
-	double ulx = 0;
+	
+  double ulx = 0;
 	double uly = 0;
 	double lrx = 120;
 	double lry = 100;
 	double xDist;
 	double yDist;
-	if (lrx > ulx) {
+
+	if (lrx > ulx) 
+  {
 		xDist = lrx - ulx;
-	} else {
+	}
+
+  else 
+  {
 		xDist = ulx - lrx;
 	}
-	if (lry > uly) {
+
+	if (lry > uly) 
+  {
 		yDist = lry - uly;
-	} else {
+	}
+
+  else 
+  {
 		yDist = uly - lry;
 	}
+
 	double xAdder = xDist / 3.0;
 	double thetaL = M_PI / ( nLN + 1.0 );
 	double thetaT = M_PI / ( nTN + 1.0 );
@@ -357,119 +380,174 @@ int main(int argc, char *argv[]) {
 
 	Ptr<Node> lr = router.Get(0);
 	Ptr<ConstantPositionMobilityModel> loc = lr->GetObject<ConstantPositionMobilityModel>();
-	if (loc == 0) {
+	
+  if (loc == 0) 
+  {
 		loc = CreateObject<ConstantPositionMobilityModel>();
 		lr->AggregateObject(loc);
 	}
+
 	Vector lrl(ulx + xAdder, uly + yDist / 2.0, 0);
 	loc->SetPosition(lrl);
 	Ptr<Node> mr = router.Get(1);
 	loc = mr->GetObject<ConstantPositionMobilityModel>();
-	if (loc == 0) {
+
+	if (loc == 0) 
+  {
 		loc = CreateObject<ConstantPositionMobilityModel>();
 		mr->AggregateObject(loc);
 	}
+
 	Vector mrl(ulx + xAdder * 2, uly + yDist / 2.0, 0); // Middle router location
 	loc->SetPosition(mrl);
 	Ptr<Node> rr = router.Get(2);
 	loc = rr->GetObject<ConstantPositionMobilityModel>();
-	if (loc == 0) {
+
+	if (loc == 0) 
+  {
 		loc = CreateObject<ConstantPositionMobilityModel>();
 		rr->AggregateObject(loc);
 	}
+
 	Vector rrl(ulx + xAdder * 3, uly + yDist / 2.0, 0); // Right router location
 	loc->SetPosition(rrl);
 	double theta = -M_PI_2 + thetaL;
-	for (int l = 0; l < nLN; ++l) {
+
+	for (int l = 0; l < nLN; ++l) 
+  {
 		// Make them in a circular pattern to make all line lengths the same
 		// Special case when theta = 0, to be sure we get a straight line
-		if (( nLN % 2 ) == 1) { // Count is odd, see if we are in middle
-			if (l == ( nLN / 2 )) {
+
+		if (( nLN % 2 ) == 1) // Count is odd, see if we are in middle
+    { 
+			if (l == ( nLN / 2 )) 
+      {
 				theta = 0.0;
 			}
 		}
+
 		Ptr<Node> ln = leftnodes.Get(l);
 		loc = ln->GetObject<ConstantPositionMobilityModel>();
-		if (loc == 0) {
+
+		if (loc == 0) 
+    {
 			loc = CreateObject<ConstantPositionMobilityModel>();
 			ln->AggregateObject(loc);
 		}
+
 		Vector lnl(lrl.x - std::cos(theta) * xAdder,
 				   lrl.y + std::sin(theta) * xAdder, 0);   // Left Node Location
 	   // Insure did not exceed bounding box
-		if (lnl.y < uly) {
+
+		if (lnl.y < uly) 
+    {
 			lnl.y = uly; // Set to upper left y
 		}
-		if (lnl.y > lry) {
+
+		if (lnl.y > lry) 
+    {
 			lnl.y = lry; // Set to lower right y
 		}
+
 		loc->SetPosition(lnl);
 		theta += thetaL;
 	}
+
 	theta = M_PI + thetaT;
-	for (int t = 0; t < nTN; ++t) {
-		if (( nTN % 2 ) == 1){
-			if (t == ( nTN / 2 )) {
+	
+  for (int t = 0; t < nTN; ++t) 
+  {
+		if (( nTN % 2 ) == 1)
+    {
+			if (t == ( nTN / 2 )) 
+      {
 				theta = -M_PI_2;
 			}
-	}
+	  }
+
 	Ptr<Node> tn = topnodes.Get(t);
 	loc = tn->GetObject<ConstantPositionMobilityModel>();
-	if (loc == 0) {
+	
+  if (loc == 0) 
+  {
 		loc = CreateObject<ConstantPositionMobilityModel>();
 		tn->AggregateObject(loc);
 	}
-	Vector tnl(mrl.x + std::cos(theta) * xAdder, // Top node location
-			   mrl.y + std::sin(theta) * xAdder, 0);
+
+	Vector tnl(mrl.x + std::cos(theta) * xAdder,mrl.y + std::sin(theta) * xAdder, 0); // Top node location
+
    // Insure did not exceed bounding box
-	if (tnl.y < uly) {
+
+	if (tnl.y < uly) 
+  {
 		tnl.y = uly; // Set to upper left y
 	}
-	if (tnl.y > lry) {
+
+	if (tnl.y > lry) 
+  {
 		tnl.y = lry; // Set to lower right y
 	}
+
 	loc->SetPosition(tnl);
 	theta += thetaT;
 }
+
 theta = -M_PI_2 + thetaR;
-for (int r = 0; r < nRN; ++r) {
+
+for (int r = 0; r < nRN; ++r) 
+{
 	// Special case when theta = 0, to be sure we get a straight line
-	if (( nRN % 2 ) == 1) { // Count is odd, see if we are in middle
-		if (r == ( nRN / 2 )) {
+	
+  if (( nRN % 2 ) == 1)  // Count is odd, see if we are in middle
+  {
+		if (r == ( nRN / 2 )) 
+    {
 			theta = 0.0;
 		}
 	}
+
 	Ptr<Node> rn = rightnodes.Get(r);
 	loc = rn->GetObject<ConstantPositionMobilityModel>();
-	if (loc == 0) {
+	
+  if (loc == 0) 
+  {
 		loc = CreateObject<ConstantPositionMobilityModel>();
 		rn->AggregateObject(loc);
 	}
-	Vector rnl(rrl.x + std::cos(theta) * xAdder, // Right node location
-			   rrl.y + std::sin(theta) * xAdder, 0);
+
+	Vector rnl(rrl.x + std::cos(theta) * xAdder,rrl.y + std::sin(theta) * xAdder, 0); // Right node location
+
    // Insure did not exceed bounding box
-	if (rnl.y < uly) {
+	
+  if (rnl.y < uly) 
+  {
 		rnl.y = uly; // Set to upper left y
 	}
-	if (rnl.y > lry) {
+
+	if (rnl.y > lry) 
+  {
 		rnl.y = lry; // Set to lower right y
 	}
+
 	loc->SetPosition(rnl);
 	theta += thetaR;
 }
 
-//--------------------------------------------That'sAllFolks----------------------------------------------------------
-Ptr<FlowMonitor> flowMonitor;
+//-------------------------------------------- TRACING ------------------------------------------------------------
+
+/*Ptr<FlowMonitor> flowMonitor;
 FlowMonitorHelper flowHelper;
-flowMonitor = flowHelper.InstallAll();
+flowMonitor = flowHelper.InstallAll();*/
 
 AsciiTraceHelper asciiTraceHelper;
-Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("eval2.cwnd");
-socketLeft[0]->TraceConnectWithoutContext("CongestionWindow", MakeBoundCallback(&CwndChange, stream));
+//Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("eval2.cwnd");
+//socketLeft[0]->TraceConnectWithoutContext("CongestionWindow", MakeBoundCallback(&CwndChange, stream));
+p2p.EnableAsciiAll (asciiTraceHelper.CreateFileStream("eval-phase1.tr"));
 
 PcapHelper pcapHelper;
-Ptr<PcapFileWrapper> file = pcapHelper.CreateFile("eval2.pcap", std::ios::out, PcapHelper::DLT_PPP);
-NDC["0-r2"].Get(0)->TraceConnectWithoutContext("PhyRxDrop", MakeBoundCallback(&RxDrop, file));
+//Ptr<PcapFileWrapper> file = pcapHelper.CreateFile("eval2.pcap", std::ios::out, PcapHelper::DLT_PPP);
+//NDC["0-r2"].Get(0)->TraceConnectWithoutContext("PhyRxDrop", MakeBoundCallback(&RxDrop, file));
+p2p.EnablePcapAll("eval");
 
 GnuplotHelper plotHelper;
 
@@ -491,10 +569,13 @@ anim.EnableIpv4L3ProtocolCounters(Seconds(0), Seconds(200));
 // Now, do the actual simulation.
 //
 NS_LOG_INFO("Run Simulation.");
+
 Simulator::Stop(Seconds(200.0));
 Simulator::Run();
-flowMonitor->SerializeToXmlFile("FlowMonitor.xml", true, true);
+//flowMonitor->SerializeToXmlFile("FlowMonitor.xml", true, true);
 std::cout << "Animation Trace file created:" << animFile.c_str() << std::endl;
 Simulator::Destroy();
+
 NS_LOG_INFO("Done.");
+
 }
