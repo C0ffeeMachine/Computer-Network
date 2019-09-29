@@ -408,7 +408,7 @@ int main(int argc, char *argv[]) {
 	}
 	theta = M_PI + thetaT;
 	for (int t = 0; t < nTN; ++t) {
-		if (( nTN % 2 ) == 1)
+		if (( nTN % 2 ) == 1){
 			if (t == ( nTN / 2 )) {
 				theta = -M_PI_2;
 			}
