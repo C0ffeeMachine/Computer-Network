@@ -459,6 +459,10 @@ for (int r = 0; r < nRN; ++r) {
 }
 
 //--------------------------------------------That'sAllFolks----------------------------------------------------------
+Ptr<FlowMonitor> flowMonitor;
+FlowMonitorHelper flowHelper;
+flowMonitor = flowHelper.InstallAll();
+
 AsciiTraceHelper asciiTraceHelper;
 Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream("eval2.cwnd");
 socketLeft[0]->TraceConnectWithoutContext("CongestionWindow", MakeBoundCallback(&CwndChange, stream));
@@ -489,6 +493,7 @@ anim.EnableIpv4L3ProtocolCounters(Seconds(0), Seconds(200));
 NS_LOG_INFO("Run Simulation.");
 Simulator::Stop(Seconds(200.0));
 Simulator::Run();
+flowMonitor->SerializeToXmlFile("FlowMonitor.xml", true, true);
 std::cout << "Animation Trace file created:" << animFile.c_str() << std::endl;
 Simulator::Destroy();
 NS_LOG_INFO("Done.");
