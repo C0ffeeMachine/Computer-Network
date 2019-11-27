@@ -25,6 +25,9 @@ _INIT
 	PointToPointHelper p2p;
 	p2p.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
 	p2p.SetChannelAttribute("Delay", StringValue("10ms"));
+	Ptr<Node> n;
+	Ptr<ConstantPositionMobilityModel> loc;
+	Ipv4AddressHelper ipv4;
 _INIT
 _OPEN
 -NODECREATE
@@ -49,14 +52,14 @@ _OPEN
 
 -IPASSIGNMENT
 6
-	address.SetBase(10.#.#.0, "255.255.255.0");
+	address.SetBase("10.#.#.0", "255.255.255.0");
 	Ipv4InterfaceContainer ifc#_# = ipv4.Assign(ndc#_#);
 
 -TRAFFICGEN
 24
 	uint16_t sinkPort# = #;
 	Address sinkAddr# = InetSocketAddress(ifc#_#.GetAddress(#), sinkPort#);
-	PacketSinkHelper packetSinkHelper# = "ns3::TcpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), sinkPort#);
+	PacketSinkHelper packetSinkHelper# ("ns3::TcpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), sinkPort#));
 	ApplicationContainer sink# = packetSinkHelper#.Install(All.Get(#));
 	sink#.Start(Seconds(0));
 	sink#.Stop(Seconds(200.));
@@ -85,6 +88,7 @@ _OPEN
   ApplicationContainer sinkApps = packetSinkHelper.Install (All.Get (1));
   sinkApps.Start (Seconds (0.));
   sinkApps.Stop (Seconds (20.));
+
 -SOCKET
   Ptr<Socket> ns3TcpSocket = Socket::CreateSocket (All.Get (0), TcpSocketFactory::GetTypeId ());
   Ptr<MyApp> app = CreateObject<MyApp> ();
@@ -92,6 +96,21 @@ _OPEN
   All.Get (0)->AddApplication (app);
   app->SetStartTime (Seconds (1.));
   app->SetStopTime (Seconds (20.));
+
+-NETANIM
+6
+	n = All.Get(#);
+	loc = n->GetObject<ConstantPositionMobilityModel>();
+
+	if (loc == 0) {
+		loc = CreateObject<ConstantPositionMobilityModel>();
+		n->AggregateObject(loc);
+	}
+
+	Vector v#(#, #, #);
+	loc->SetPosition(v#);
+
+
 -OUTPUTSETTINGS
 0
 PcapHelper pcapHelper;
@@ -105,6 +124,7 @@ Simulator::Stop(Seconds(#));
 Simulator::Run();
 std::cout << "Animation Trace file created:" << animFile.c_str() << std::endl;
 Simulator::Destroy();
+-THATSALLFOLKS
 _CLOSE
 }
 _CLOSE

@@ -29,6 +29,11 @@ struct Node
 		pge->DrawString(ex, ey, name, olc::WHITE, 0.2*fWorldScale);
 	}
 
+	olc::vf2d GetScreenPos() {
+		olc::vf2d out;
+		WorldToScreen(pos, out.x, out.y);
+		return out;
+	}
 };
 
 std::vector<std::string> tools={"Traffic","Move","Connect","Remove","Node","Algo"};
@@ -390,6 +395,11 @@ public:
 											std::to_string(i),
 											std::to_string(i)});
 		}
+		//NetAnim
+		for (int i = 0; i < vecNodes.size(); i++) {
+			olc::vf2d loc = vecNodes[i]->GetScreenPos();
+			t.FormatToOut("NETANIM", { std::to_string(i),std::to_string(i),std::to_string((int)loc.x/10),std::to_string((int)loc.y/10),"0",std::to_string(i)});
+		}
 		t.FormatToOut("OUTPUTSETTINGS", {});
 		t.FormatToOut("SIMULATE", {"200.0"});
 		t.CopyToOut("CLOSE");
@@ -400,7 +410,7 @@ public:
 int main()
 {
 	TopGen demo;
-	if (demo.Construct(1600, 960, 1, 1)) {
+	if (demo.Construct(1280, 720, 1, 1)) {
 		demo.Start();
 		demo.Export();
 	}

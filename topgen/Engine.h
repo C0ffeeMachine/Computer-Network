@@ -210,6 +210,7 @@ static wglSwapInterval_t* wglSwapInterval;
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/X.h>
+#include <libpng/png.h>
 typedef int(glSwapInterval_t)(Display* dpy, GLXDrawable drawable, int interval);
 static glSwapInterval_t* glSwapIntervalEXT;
 #endif
