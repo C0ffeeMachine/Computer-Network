@@ -1,0 +1,111 @@
+_HEADERS
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/network-module.h"
+#include "ns3/point-to-point-module.h"
+#include "ns3/applications-module.h"
+#include "ns3/internet-module.h"
+#include "ns3/flow-monitor-module.h"
+#include "ns3/ipv4-global-routing-helper.h"
+#include "ns3/stats-module.h"
+#include "ns3/global-route-manager.h"
+#include "ns3/bridge-module.h"
+#include "ns3/trace-helper.h"
+#include "ns3/netanim-module.h"
+using namespace ns3;
+#include"MyApp.h"
+_HEADERS
+_MAIN
+_OPEN
+int main(int argc, char *argv[]) {
+_INIT
+	std::string animFile = "test.xml";  // Name of file for animation output
+	CommandLine cmd;
+	cmd.Parse(argc, argv);
+	PointToPointHelper p2p;
+	p2p.SetDeviceAttribute("DataRate", StringValue("50Mbps"));
+	p2p.SetChannelAttribute("Delay", StringValue("10ms"));
+_INIT
+_OPEN
+-NODECREATE
+1
+	int nnodes=#;
+	NodeContainer All;
+	All.Create(nnodes);
+
+-NODECONTAINERS
+8
+	NodeContainer nc#_# = NodeContainer(All.Get(#),All.Get(#));
+	NetDeviceContainer ndc#_# = p2p.Install(nc#_#);
+
+-INSTALLATTRIBUTES
+2
+	Ptr<RateErrorModel> em = CreateObject<RateErrorModel>();
+	em->SetAttribute("ErrorRate", DoubleValue(0.00001));
+	ndc#_#.Get(0)->SetAttribute("ReceiveErrorModel", PointerValue(em));
+	InternetStackHelper internetStack;
+	internetStack.Install(All);
+	Ipv4AddressHelper address;
+
+-IPASSIGNMENT
+6
+	address.SetBase(10.#.#.0, "255.255.255.0");
+	Ipv4InterfaceContainer ifc#_# = ipv4.Assign(ndc#_#);
+
+-TRAFFICGEN
+24
+	uint16_t sinkPort# = #;
+	Address sinkAddr# = InetSocketAddress(ifc#_#.GetAddress(#), sinkPort#);
+	PacketSinkHelper packetSinkHelper# = "ns3::TcpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), sinkPort#);
+	ApplicationContainer sink# = packetSinkHelper#.Install(All.Get(#));
+	sink#.Start(Seconds(0));
+	sink#.Stop(Seconds(200.));
+
+	Ptr<Socket> socket# = Socket::CreateSocket(All.Get(#), TcpSocketFactory::GetTypeId());
+
+	Ptr<MyApp> app# = CreateObject<MyApp>();
+	app#->Setup(socket#, sinkAddr#, 1040, 100000, DataRate("100Mbps"));
+	All.Get(#)->AddApplication(app#);
+	app#->SetStartTime(Seconds(1));
+	app#->SetStopTime(Seconds(200.));
+
+-SINK
+  uint16_t sinkPort = 8080;
+  Address sinkAddress;
+  Address anyAddress;
+  std::string probeType;
+  std::string tracePath;
+  address.SetBase ("10.1.1.0", "255.255.255.0");
+  Ipv4InterfaceContainer interfaces = address.Assign (NDC);
+  sinkAddress = InetSocketAddress (interfaces.GetAddress (1), sinkPort);
+  anyAddress = InetSocketAddress (Ipv4Address::GetAny (), sinkPort);
+  probeType = "ns3::Ipv4PacketProbe";
+  tracePath = "/NodeList/*/$ns3::Ipv4L3Protocol/Tx";
+  PacketSinkHelper packetSinkHelper ("ns3::TcpSocketFactory", anyAddress);
+  ApplicationContainer sinkApps = packetSinkHelper.Install (All.Get (1));
+  sinkApps.Start (Seconds (0.));
+  sinkApps.Stop (Seconds (20.));
+-SOCKET
+  Ptr<Socket> ns3TcpSocket = Socket::CreateSocket (All.Get (0), TcpSocketFactory::GetTypeId ());
+  Ptr<MyApp> app = CreateObject<MyApp> ();
+  app->Setup (ns3TcpSocket, sinkAddress, 1040, 1000, DataRate ("1Mbps"));
+  All.Get (0)->AddApplication (app);
+  app->SetStartTime (Seconds (1.));
+  app->SetStopTime (Seconds (20.));
+-OUTPUTSETTINGS
+0
+PcapHelper pcapHelper;
+p2p.EnablePcapAll("eval");
+AnimationInterface anim(animFile);
+anim.EnablePacketMetadata(); // Optional
+anim.EnableIpv4L3ProtocolCounters(Seconds(0), Seconds(200));
+-SIMULATE
+1
+Simulator::Stop(Seconds(#));
+Simulator::Run();
+std::cout << "Animation Trace file created:" << animFile.c_str() << std::endl;
+Simulator::Destroy();
+_CLOSE
+}
+_CLOSE
+_MAIN
